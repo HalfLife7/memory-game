@@ -1,11 +1,37 @@
 import {useEffect, useState} from 'react'
+import React from "react";
 import './App.css'
 
-const Picture = ({img, index}) => {
-    return (
-        <img className="h-96 my-4" src={img} alt={index}/>
-    )
-}
+const imageFiles = [
+    "images/2RnEtbW.png",
+    "images/3x8hEE1.png",
+    "images/4P0CqRN.jpg",
+    "images/04afe1y.jpg",
+    "images/7P0xXKY.jpg",
+    "images/8EEfLuB.jpeg",
+    "images/8m-r1_O.png",
+    "images/-VVdn7B.png",
+    "images/anKsYF2.png",
+    "images/bBTiHba.png",
+    "images/bodE1ZR.png",
+    "images/fuGfYQJ.jpg",
+    "images/Ju8JMcj.jpg",
+    "images/KfZyMS3.jpg",
+    "images/KjyZfjn.jpg",
+    "images/lMiXE7j.png",
+    "images/mbQ4c4V.jpg",
+    "images/mJkPaVR.png",
+    "images/O4gqsyo.jpg",
+    "images/Ojsl-2a.jpg",
+    "images/rF-pZ8a.jpg",
+    "images/wlvCPrF.jpg",
+    "images/wPbusA9.png",
+    "images/XcpL3nR.jpg",
+    "images/yn_F4Nt.jpeg",
+    "images/ynInTFV.jpg",
+    "images/yYcF1Me.png",
+    "images/z1rMzBR.jpg",
+]
 
 function App() {
     // const [images, setImages] = useState([])
@@ -39,8 +65,15 @@ function App() {
     //     fetchData();
     // }, [])
 
+    const Picture = ({image, index}) => {
+        return (
+            <img onClick={handlePictureOnClick} className="h-96 my-4" src={image} alt={index} data-testid={`${index}-image`}/>
+        )
+    }
+
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false)
+    const [score, setScore] = useState(0)
     const importImage = async (path) => {
         const imageUrl = new URL(path, import.meta.url).href;
         return imageUrl;
@@ -65,9 +98,7 @@ function App() {
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const imageFiles = await import.meta.glob('./images/*.*');
-                const imagePaths = Object.keys(imageFiles);
-                const imageUrls = await Promise.all(imagePaths.map((path) => importImage(path)));
+                const imageUrls = await Promise.all(imageFiles.map((path) => importImage(path)));
                 setImages(imageUrls);
             } catch (error) {
                 console.error('Error fetching images:', error.message);
@@ -77,19 +108,26 @@ function App() {
         fetchImages();
     }, []);
 
+    const handlePictureOnClick = () => {
+        setScore((prevScore) => prevScore + 1)
+    }
+
   return (
-    <>
+    <div>
+        <div className={"text-white"} data-testid="score-display">Score: {score}</div>
         {
             loading ?
             (<p>Loading...</p>)
                 :
             (
                 <div className="flex flex-wrap justify-between">
-                    {images.map((image, index) => <Picture img={image} key={index}/>)}
+                    {images.map((image, index) => {
+                        return <Picture image={image} key={image} index={index}/>
+                    })}
                 </div>
             )
         }
-    </>
+    </div>
   )
 }
 
