@@ -67,13 +67,23 @@ function App() {
 
     const Picture = ({image, index}) => {
         return (
-            <img onClick={handlePictureOnClick} className="h-96 my-4" src={image} alt={index} data-testid={`${index}-image`}/>
+            <img onClick={() => handlePictureOnClick(image)} className="my-4 h-96" src={image} alt={image}
+                 data-testid={`${index}-image`}/>
         )
+    }
+
+    const GameOverDisplay = ({gameOver}) => {
+        if (!gameOver) {
+            return null;
+        }
+        return <div className={"text-white"} data-testid="game-over">Game Over</div>;
     }
 
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false)
     const [score, setScore] = useState(0)
+    const [alreadyClicked, setAlreadyClicked] = useState([])
+    const [gameOver, setGameOver] = useState(false);
     const importImage = async (path) => {
         const imageUrl = new URL(path, import.meta.url).href;
         return imageUrl;
@@ -82,17 +92,17 @@ function App() {
     // click image
     // check if it belongs to one of the ones that has been clicked already
     // if it hasn't been clicked yet
-        // increase score by 1
-        // add to state that tracks which ones have been clicked already
-        // shuffle images
+    // increase score by 1
+    // add to state that tracks which ones have been clicked already
+    // shuffle images
     // if it has been clinked already
-        // end game
-        // prevent any of the items from being clicked
-        // restart game button is now new game
+    // end game
+    // prevent any of the items from being clicked
+    // restart game button is now new game
 
     // restart game / continue button
-        // fetch new images
-        // reset score
+    // fetch new images
+    // reset score
 
 
     useEffect(() => {
@@ -108,9 +118,18 @@ function App() {
         fetchImages();
     }, []);
 
-    const handlePictureOnClick = () => {
-        setScore((prevScore) => prevScore + 1)
-        setImages((prevState) => shuffleArray(prevState))
+    const handlePictureOnClick = (image) => {
+        if (gameOver) {
+            return
+        }
+
+        if (!alreadyClicked.includes(image)) {
+            setScore((prevScore) => prevScore + 1)
+            setImages((prevState) => shuffleArray(prevState))
+            setAlreadyClicked((prevState) => [...prevState, image])
+        } else {
+            setGameOver(true);
+        }
     }
 
     function shuffleArray(array) {
@@ -121,23 +140,24 @@ function App() {
         return array;
     }
 
-  return (
-    <div>
-        <div className={"text-white"} data-testid="score-display">Score: {score}</div>
-        {
-            loading ?
-            (<p>Loading...</p>)
-                :
-            (
-                <div className="flex flex-wrap justify-between">
-                    {images.map((image, index) => {
-                        return <Picture image={image} key={image} index={index}/>
-                    })}
-                </div>
-            )
-        }
-    </div>
-  )
+    return (
+        <div>
+            <div className={"text-white"} data-testid="score-display">Score: {score}</div>
+            <GameOverDisplay gameOver={gameOver}/>
+            {
+                loading ?
+                    (<p>Loading...</p>)
+                    :
+                    (
+                        <div className="flex flex-wrap justify-between">
+                            {images.map((image, index) => {
+                                return <Picture image={image} key={image} index={index}/>
+                            })}
+                        </div>
+                    )
+            }
+        </div>
+    )
 }
 
 export default App

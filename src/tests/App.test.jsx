@@ -1,4 +1,4 @@
-import {fireEvent, render, screen, debug, waitFor, act} from "@testing-library/react";
+import {fireEvent, render, screen, waitFor} from "@testing-library/react";
 import '@testing-library/jest-dom'
 import React from "react";
 import App from "../App.jsx";
@@ -26,10 +26,6 @@ describe('App', () => {
                 })
             })
 
-            // xit('adds it to list of images that have already been clicked', async () => {
-            //
-            // })
-
             it('shuffles the images', async () => {
                render(<App/>)
 
@@ -41,7 +37,6 @@ describe('App', () => {
 
                 fireEvent.click(firstImage);
 
-
                 await waitFor(() => {
                     const newFirstImage = screen.getByTestId('0-image');
                     expect(firstImage.src).not.toEqual(newFirstImage.src);
@@ -49,6 +44,29 @@ describe('App', () => {
             })
         })
         describe('when image has already been clicked before', () => {
+            it('ends the game', async () => {
+                render(<App/>)
+
+                await waitFor(() => {
+                    expect(screen.getByTestId('0-image')).toBeInTheDocument();
+                })
+
+                const firstImage = screen.getByTestId('0-image');
+
+                fireEvent.click(firstImage);
+
+                await waitFor(() => {
+                    const sameImageClicked = screen.getByAltText(firstImage.alt);
+                    expect(firstImage.src).toEqual(sameImageClicked.src);
+                })
+
+                const sameImage = screen.getByAltText(firstImage.alt)
+                fireEvent.click(sameImage);
+
+                await waitFor(() => {
+                    expect(screen.getByText('Game Over')).toBeInTheDocument()
+                })
+            })
         })
     })
 })
