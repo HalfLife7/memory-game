@@ -45,7 +45,7 @@ describe('App', () => {
         })
         describe('when image has already been clicked before', () => {
             it('ends the game', async () => {
-                render(<App/>)
+                const {container} = render(<App/>)
 
                 await waitFor(() => {
                     expect(screen.getByTestId('0-image')).toBeInTheDocument();
@@ -66,6 +66,39 @@ describe('App', () => {
                 await waitFor(() => {
                     expect(screen.getByText('Game Over')).toBeInTheDocument()
                 })
+            })
+        })
+    })
+    describe('when user restarts game', () => {
+        it('fetches new images', async () => {
+            render(<App/>)
+
+            await waitFor(() => {
+                expect(screen.getByTestId('0-image')).toBeInTheDocument();
+            })
+
+            const firstImage = screen.getByTestId('0-image');
+
+            fireEvent.click(firstImage);
+
+            await waitFor(() => {
+                const sameImageClicked = screen.getByAltText(firstImage.alt);
+                expect(firstImage.src).toEqual(sameImageClicked.src);
+            })
+
+            const sameImage = screen.getByAltText(firstImage.alt)
+            fireEvent.click(sameImage);
+
+            await waitFor(() => {
+                expect(screen.getByText('Restart')).toBeInTheDocument()
+            })
+
+            const restartButton = screen.getByTestId('restart-button');
+            fireEvent.click(restartButton);
+
+            await waitFor(() => {
+                expect(screen.queryByText('Game Over')).not.toBeInTheDocument()
+                expect(screen.queryByText('Restart')).not.toBeInTheDocument()
             })
         })
     })

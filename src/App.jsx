@@ -34,8 +34,15 @@ const imageFiles = [
 ]
 
 function App() {
-    // const [images, setImages] = useState([])
-    // const [loading, setLoading] = useState(true)
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true)
+    const [score, setScore] = useState(0)
+    const [alreadyClicked, setAlreadyClicked] = useState([])
+    const [gameOver, setGameOver] = useState(false);
+    const importImage = async (path) => {
+        const imageUrl = new URL(path, import.meta.url).href;
+        return imageUrl;
+    };
 
     // Fetching images from API
     // const apiUrl = 'https://api.waifu.pics/many/sfw/waifu';
@@ -47,7 +54,7 @@ function App() {
     //     body: formdata,
     //     redirect: 'follow'
     // };
-    //
+
     // useEffect(() => {
     //     const fetchData = async () => {
     //         try {
@@ -63,7 +70,7 @@ function App() {
     //         }
     //     }
     //     fetchData();
-    // }, [])
+    // }, [gameOver])
 
     const Picture = ({image, index}) => {
         return (
@@ -78,16 +85,6 @@ function App() {
         }
         return <div className={"text-white"} data-testid="game-over">Game Over</div>;
     }
-
-    const [images, setImages] = useState([]);
-    const [loading, setLoading] = useState(false)
-    const [score, setScore] = useState(0)
-    const [alreadyClicked, setAlreadyClicked] = useState([])
-    const [gameOver, setGameOver] = useState(false);
-    const importImage = async (path) => {
-        const imageUrl = new URL(path, import.meta.url).href;
-        return imageUrl;
-    };
 
     // click image
     // check if it belongs to one of the ones that has been clicked already
@@ -104,17 +101,17 @@ function App() {
     // fetch new images
     // reset score
 
+    const fetchImages = async () => {
+        try {
+            const imageUrls = await Promise.all(imageFiles.map((path) => importImage(path)));
+            setImages(imageUrls);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching images:', error.message);
+        }
+    };
 
     useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                const imageUrls = await Promise.all(imageFiles.map((path) => importImage(path)));
-                setImages(imageUrls);
-            } catch (error) {
-                console.error('Error fetching images:', error.message);
-            }
-        };
-
         fetchImages();
     }, []);
 
@@ -140,8 +137,26 @@ function App() {
         return array;
     }
 
+    const handleRestartButtonClick = async () => {
+        setLoading(true);
+        setGameOver(false);
+        setScore(0);
+        setAlreadyClicked([]);
+        await fetchImages();
+    }
+    const RestartButton = ({gameOver}) => {
+        if (!gameOver) {
+            return null
+        }
+
+        return (
+            <button data-testid="restart-button" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleRestartButtonClick}>Restart</button>
+        )
+    }
+
     return (
         <div>
+            <RestartButton gameOver={gameOver}/>
             <div className={"text-white"} data-testid="score-display">Score: {score}</div>
             <GameOverDisplay gameOver={gameOver}/>
             {
