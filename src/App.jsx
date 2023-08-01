@@ -2,6 +2,11 @@ import {useEffect, useState} from 'react'
 import React from "react";
 import './App.css'
 
+//TODO:
+// add dropdown to switch between APIs
+// add difficulty dropdown (change total number of images)
+// refactor it from being one huge component
+
 // const imageFiles = [
 //     "images/2RnEtbW.png",
 //     "images/3x8hEE1.png",
